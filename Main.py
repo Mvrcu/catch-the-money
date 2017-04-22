@@ -10,11 +10,13 @@ import sys
 import pygame as pg
 
 
-CAPTION = "Move me with the Arrow Keys"
-SCREEN_SIZE = (700, 500)
+CAPTION = "Catch the money with the arrow keys"
+SCREEN_SIZE = (800, 550)
 
 TRANSPARENT = (0, 0, 0, 0)
 
+score = 0
+money_array = []
 # This global constant serves as a very useful convenience for me.
 DIRECT_DICT = {pg.K_LEFT  : (-1, 0),
                pg.K_RIGHT : ( 1, 0),
@@ -105,6 +107,10 @@ class Application(object):
         Perform all necessary drawing and update the screen.
         """
         self.screen.fill(pg.Color("white"))
+        # Select the font to use, size, bold, italics
+        font = pg.font.SysFont('Calibri', 25, True, False)
+        text = font.render("Score: "+ str(score), True, (0, 0, 0))
+        self.screen.blit(text, [5, 5])
         self.player.draw(self.screen)
         pg.display.update()
 
