@@ -121,9 +121,9 @@ class Application(object):
                 self.done = True
             elif event.type in (pg.KEYUP, pg.KEYDOWN):
                 self.keys = pg.key.get_pressed()
-        hit_list = pg.sprite.spritecollide(self.player, self.allsprites, True)
+        hit_list = pg.sprite.spritecollide(self.player, self.object_sprites, True)
         for i in hit_list:
-            self.player.score +=1
+            self.player.score += 1
             print(self.player.score)
     def render(self):
         """
