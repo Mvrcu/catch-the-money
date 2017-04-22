@@ -75,7 +75,8 @@ def load_images():
         This function gathers all relevant images in the image folder of the
         game.
         """
-        file_name = os.path.join('img', img_file)
+        directory = os.path.dirname(os.path.abspath(__file__))
+        file_name = os.path.join(directory, 'img', img_file)
         return pg.image.load(file_name).convert_alpha()
 
     return {'money': load_image('money.png'),
