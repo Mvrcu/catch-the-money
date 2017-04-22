@@ -5,67 +5,21 @@
 
 import os
 import random
+import sys
 
 import pygame as pg
 
 
-class Constants:
-    FPS = 60
-    NAVY = (0, 0, 128)
-    money_array = []
-    MONEY_SIZE = 70
+CAPTION = "Move me with the Arrow Keys"
+SCREEN_SIZE = (700, 500)
 
-# Constructor for constants file for many variables
+TRANSPARENT = (0, 0, 0, 0)
 
-constants = Constants()
-
-class Game(object):
-
-    """ This class represents an instance of the game. If we need to
-        reset the game we'd just need to create a new instance of this
-        class. """
-
-    def __init__(self):
-        """ Constructor. Create all our attributes and initialize
-        the game. """
-
-        self.score = 0
-        self.game_over = False
-        self.wallet_x = 0
-        self.wallet_y = 0
-        self.wallet_x_movement = 0
-        self.wallet_y_movement = 1
-
-    def process_events(self):
-        """ Process all of the events. Return a "True" if we need
-            to close the window. """
-
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                return True
-            if event.type == pg.MOUSEBUTTONDOWN:
-                if self.game_over:
-                    self.__init__()
-        return False
-
-    def run_logic(self):
-        """
-        This method is run each time through the frame. It
-        updates positions and checks for collisions.
-        """
-        self.wallet_x += self.wallet_x_movement
-        self.wallet_y += self.wallet_y_movement
-
-    def display_frame(self, screen):
-        if self.game_over:
-            font = pg.font.SysFont('serif', 25)
-            text = font.render('Game Over, click to restart', True,
-                               BLACK)
-            center_x = SCREEN_WIDTH // 2 - text.get_width() // 2
-            center_y = SCREEN_HEIGHT // 2 - text.get_height() // 2
-            screen.blit(text, [center_x, center_y])
-
-
+# This global constant serves as a very useful convenience for me.
+DIRECT_DICT = {pg.K_LEFT  : (-1, 0),
+               pg.K_RIGHT : ( 1, 0),
+               pg.K_UP    : ( 0,-1),
+               pg.K_DOWN  : ( 0, 1)}
 
 def load_images():
     """Loads all images in 'img' folder for use on call."""
@@ -84,29 +38,98 @@ def load_images():
             'bonus_card': load_image('bonus_card.png'),
             'saw': load_image('saw.png')}
 
-def main():
-    """ Main statement for initialize of program, also controller for executing.
+class Player(object):
     """
-    pg.init()
-    done = paused = False
-    clock = pg.time.Clock()
-    display_info = pg.display.Info()
+    This class will represent our user controlled character.
+    """
+    SIZE = (100, 100)
 
-    display_surface = pg.display.set_mode((750, 550))
+    def __init__(self, pos, speed):
+        """
+        The pos argument is a tuple for the center of the player (x,y);
+        speed is given in pixels/frame.
+        """
+        self.rect = pg.Rect((0,0), Player.SIZE)
+        self.rect.center = pos
+        self.speed = speed
+        self.image = load_images()
 
-    game = Game()
-    images = load_images()
+    def update(self, keys, screen_rect):
+        """
+        Updates our player appropriately every frame.
+        """
+        for key in DIRECT_DICT:
+            if keys[key]:
+                self.rect.x += DIRECT_DICT[key][0]*self.speed
+                self.rect.y += DIRECT_DICT[key][1]*self.speed
+        self.rect.clamp_ip(screen_rect) # Keep player on screen.
 
-    while not done:
-        done = game.process_events()
-        game.run_logic()
-        display_surface.fill(pg.Color("white"))
-        game.display_frame(display_surface)
-        display_surface.blit(images['wallet'], (game.wallet_x, game.wallet_y))
+    def draw(self, surface):
+        """
+        Blit image to the target surface.
+        """
+        surface.blit(self.image['wallet'], self.rect)
+
+
+class Application(object):
+    """
+    A class to manage our event, game loop, and overall program flow.
+    """
+    def __init__(self):
+        """
+        Get a reference to the display surface; set up required attributes;
+        and create a Player instance.
+        """
+        self.screen = pg.display.get_surface()
+        self.screen_rect = self.screen.get_rect()
+        self.clock = pg.time.Clock()
+        self.fps = 60
+        self.done = False
+        self.keys = pg.key.get_pressed()
+        self.player = Player(self.screen_rect.center, 5)
+
+    def event_loop(self):
+        """
+        One event loop. Never cut your game off from the event loop.
+        Your OS may decide your program has hung if the event queue is not
+        accessed for a prolonged period of time.
+        """
+        for event in pg.event.get():
+            if event.type == pg.QUIT or self.keys[pg.K_ESCAPE]:
+                self.done = True
+            elif event.type in (pg.KEYUP, pg.KEYDOWN):
+                self.keys = pg.key.get_pressed()
+
+    def render(self):
+        """
+        Perform all necessary drawing and update the screen.
+        """
+        self.screen.fill(pg.Color("white"))
+        self.player.draw(self.screen)
         pg.display.update()
-        clock.tick(constants.FPS)
+
+    def main_loop(self):
+        """
+        One game loop. Simple and clean.
+        """
+        while not self.done:
+            self.event_loop()
+            self.player.update(self.keys, self.screen_rect)
+            self.render()
+            self.clock.tick(self.fps)
+
+def main():
+    """
+    Prepare our environment, create a display, and start the program.
+    """
+    os.environ['SDL_VIDEO_CENTERED'] = '1'
+    pg.init()
+    pg.display.set_caption(CAPTION)
+    pg.display.set_mode(SCREEN_SIZE, pg.NOFRAME)
+    Application().main_loop()
     pg.quit()
+    sys.exit()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
