@@ -136,6 +136,11 @@ class Application(object):
             print(self.player.score)
         self.allsprites.update(self.screen_rect, self.keys)
 
+    def update_score(self):
+        font = pg.font.SysFont('Calibri', 25, True, False)
+        text = font.render("Score: "+ str(self.player.score), True, pg.Color("black"))
+        self.screen.blit(text, [5, 5])
+
     def main_loop(self):
         """
         One game loop. Simple and clean.
@@ -144,6 +149,7 @@ class Application(object):
             self.event_loop()
             self.update()
             self.render()
+            self.update_score()
             self.clock.tick(self.fps)
 
 def main():
