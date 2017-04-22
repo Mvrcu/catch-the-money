@@ -121,10 +121,6 @@ class Application(object):
                 self.done = True
             elif event.type in (pg.KEYUP, pg.KEYDOWN):
                 self.keys = pg.key.get_pressed()
-        hit_list = pg.sprite.spritecollide(self.player, self.object_sprites, True)
-        for i in hit_list:
-            self.player.score += 1
-            print(self.player.score)
     def render(self):
         """
         Perform all necessary drawing and update the screen.
@@ -133,13 +129,20 @@ class Application(object):
         self.allsprites.draw(self.screen)
         pg.display.update()
 
+    def update(self):
+        hit_list = pg.sprite.spritecollide(self.player, self.object_sprites, True)
+        for i in hit_list:
+            self.player.score += 1
+            print(self.player.score)
+        self.allsprites.update(self.screen_rect, self.keys)
+
     def main_loop(self):
         """
         One game loop. Simple and clean.
         """
         while not self.done:
             self.event_loop()
-            self.allsprites.update(self.screen_rect, self.keys)
+            self.update()
             self.render()
             self.clock.tick(self.fps)
 
