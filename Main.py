@@ -10,7 +10,7 @@ import random
 import pygame as pg
 
 
-CAPTION = "Move me with the Arrow Keys"
+CAPTION = "Catch the falling funds with your wallet!"
 SCREEN_SIZE = (800, 550)
 
 TRANSPARENT = (0, 0, 0, 0)
