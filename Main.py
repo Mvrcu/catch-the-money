@@ -16,10 +16,10 @@ SCREEN_SIZE = (800, 550)
 TRANSPARENT = (0, 0, 0, 0)
 
 # This global constant serves as a very useful convenience for me.
-DIRECT_DICT = {pg.K_LEFT  : (-1, 0),
-               pg.K_RIGHT : ( 1, 0),
-               pg.K_UP    : ( 0,-1),
-               pg.K_DOWN  : ( 0, 1)}
+DIRECT_DICT = {pg.K_LEFT  : (-1.5, 0),
+               pg.K_RIGHT : ( 1.5, 0),
+               pg.K_UP    : ( 0,-1.5),
+               pg.K_DOWN  : ( 0, 1.5)}
 
 
 def load_images():
