@@ -86,7 +86,7 @@ class Saw(pg.sprite.Sprite):
 class Bonus_Card(pg.sprite.Sprite):
     def __init__(self, screen_rect, *groups):
         """
-        The pos argument is a tuple for the center of the player (x,y);
+        The pos argument is a tuple for the center of the bonus card (x,y);
         speed is given in pixels/frame.
         """
         super(Bonus_Card, self).__init__(*groups)
@@ -153,11 +153,11 @@ class Application(object):
         self.saw_sprite = pg.sprite.Group()
         self.player = Player(self.screen_rect.center, 5, self.allsprites)
         self.score_text = None
-        for _ in range(15):
+        for _ in range(8):
             Money(self.screen_rect, self.allsprites, self.money_sprite)
         for _ in range(1):
             Bonus_Card(self.screen_rect, self.allsprites, self.card_sprite)
-        for _ in range(1):
+        for _ in range(3):
             Saw(self.screen_rect, self.allsprites, self.saw_sprite)
 
     def event_loop(self):
@@ -175,7 +175,7 @@ class Application(object):
         """
         Perform all necessary drawing and update the screen.
         """
-        self.screen.fill(pg.Color("white"))
+        self.screen.fill(pg.Color(51, 153, 255))
         self.allsprites.draw(self.screen)
         self.screen.blit(self.score_text, (5, 5))
         pg.display.update()
@@ -186,19 +186,26 @@ class Application(object):
         card_hits = pg.sprite.spritecollide(self.player, self.card_sprite, False)
         for hit in saw_hits:
             hit.reset(self.screen_rect)
-            self.player.score -= 1
+            self.player.score -= 5
         for hit in money_hits:
             hit.reset(self.screen_rect)
             self.player.score += 1
         for hit in card_hits:
             hit.reset(self.screen_rect)
-            self.player.score += 100
+            self.player.score += 3
         self.update_score()
         self.allsprites.update(self.screen_rect, self.keys)
 
     def update_score(self):
         score_raw = "Score: {}".format(self.player.score)
-        self.score_text = FONT.render(score_raw, True, pg.Color("black"))
+        if self.player.score  <= 0:
+            self.score_text = FONT.render(score_raw, True, pg.Color("red"))
+        elif self.player.score >= 1 and self.player.score <= 9:
+            self.score_text = FONT.render(score_raw, True, pg.Color(255,165,0))
+        elif self.player.score >= 10:
+            self.score_text = FONT.render(score_raw, True, pg.Color("green"))
+        else:
+            self.score_text = FONT.render(score_raw, True, pg.Color("black"))
 
     def main_loop(self):
         """
@@ -218,7 +225,7 @@ def main():
     os.environ['SDL_VIDEO_CENTERED'] = '1'
     pg.init()
     pg.display.set_caption(CAPTION)
-    pg.display.set_mode(SCREEN_SIZE)
+    pg.display.set_mode(SCREEN_SIZE, pg.NOFRAME)
     IMAGES = load_images()
     FONT = pg.font.SysFont('Calibri', 25, True, False)
     Application().main_loop()
