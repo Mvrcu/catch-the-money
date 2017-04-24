@@ -1,6 +1,6 @@
 # catch-the-money.py
 
-One Paragraph of project description goes here
+This is a simple game using the keyboard keys and controller axis to catch money using a wallet cursor falling from the top of the screen. Score is calculated and may be deducted if failing to catch money before it hits the bottom of the screen or you collect a 'razor blade'. Score will be added to upon collecting of dollars and the 'bonus card'.
 
 ## Getting Started
 
