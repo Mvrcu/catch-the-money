@@ -11,7 +11,7 @@ import pygame as pg
 
 
 CAPTION = "Catch the falling funds with your wallet!"
-SCREEN_SIZE = (800, 550)
+SCREEN_SIZE = (850, 600)
 
 TRANSPARENT = (0, 0, 0, 0)
 
@@ -52,7 +52,7 @@ class Money(pg.sprite.Sprite):
         self.reset(screen_rect)
 
     def reset(self, screen_rect):
-        self.speed = random.randrange(2, 4)
+        self.speed = random.randrange(3, 4)
         self.rect.y = random.randrange(-300, -self.rect.h)
         self.rect.x = random.randrange(0, screen_rect.w - self.rect.w)
 
@@ -159,6 +159,13 @@ class Application(object):
             Bonus_Card(self.screen_rect, self.allsprites, self.card_sprite)
         for _ in range(3):
             Saw(self.screen_rect, self.allsprites, self.saw_sprite)
+        joystick_count = pg.joystick.get_count()
+        print ("There is ", joystick_count, " joystick's.")
+        if joystick_count == 0:
+            print ("No joystick's where found.")
+        else:
+            my_joystick = pg.joystick.Joystick(0)
+            my_joystick.init()
 
     def event_loop(self):
         """
@@ -171,6 +178,12 @@ class Application(object):
                 self.done = True
             elif event.type in (pg.KEYUP, pg.KEYDOWN):
                 self.keys = pg.key.get_pressed()
+            elif event.type in (pg.JOYBUTTONDOWN, pg.JOYBUTTONUP):
+                h_axis_pos = my_joystick.get_axis(0)
+                v_axis_pos = my_joystick.get_axis(1)
+                print (h_axis_pos, v_axis_pos)
+                self.rect.x = int(x + h_axis_pos * 5)
+                self.rect.y = int(y + v_axis_pos * 5)
     def render(self):
         """
         Perform all necessary drawing and update the screen.
@@ -224,12 +237,15 @@ def main():
     global IMAGES, FONT
     os.environ['SDL_VIDEO_CENTERED'] = '1'
     pg.init()
+    pg.joystick.init()
     pg.display.set_caption(CAPTION)
     pg.display.set_mode(SCREEN_SIZE, pg.NOFRAME)
     IMAGES = load_images()
     FONT = pg.font.SysFont('Calibri', 25, True, False)
+    JOYSTICKS = [pg.joystick.Joystick(x) for x in range(pg.joystick.get_count())]
     Application().main_loop()
     pg.quit()
+    pg.joystick.quit()
     sys.exit()
 
 
