@@ -16,10 +16,10 @@ SCREEN_SIZE = (800, 550)
 TRANSPARENT = (0, 0, 0, 0)
 
 # This global constant serves as a very useful convenience for me.
-DIRECT_DICT = {pg.K_LEFT  : (-1.5, 0),
-               pg.K_RIGHT : ( 1.5, 0),
-               pg.K_UP    : ( 0,-1.5),
-               pg.K_DOWN  : ( 0, 1.5)}
+DIRECT_DICT = {pg.K_LEFT  : (-1, 0),
+               pg.K_RIGHT : ( 1, 0),
+               pg.K_UP    : ( 0,-1),
+               pg.K_DOWN  : ( 0, 1)}
 
 
 def load_images():
@@ -52,7 +52,50 @@ class Money(pg.sprite.Sprite):
         self.reset(screen_rect)
 
     def reset(self, screen_rect):
-        self.speed = random.randrange(1, 5)
+        self.speed = random.randrange(2, 4)
+        self.rect.y = random.randrange(-300, -self.rect.h)
+        self.rect.x = random.randrange(0, screen_rect.w - self.rect.w)
+
+    def update(self, screen_rect, *args):
+        self.rect.y += self.speed
+        if self.rect.top > screen_rect.h:
+            self.reset(screen_rect)
+
+class Saw(pg.sprite.Sprite):
+    def __init__(self, screen_rect, *groups):
+        """
+        The pos argument is a tuple for the center of the player (x,y);
+        speed is given in pixels/frame.
+        """
+        super(Saw, self).__init__(*groups)
+        self.image = IMAGES["saw"]
+        self.rect = self.image.get_rect()
+        self.reset(screen_rect)
+
+    def reset(self, screen_rect):
+        self.speed = random.randrange(2, 4)
+        self.rect.y = random.randrange(-300, -self.rect.h)
+        self.rect.x = random.randrange(0, screen_rect.w - self.rect.w)
+
+    def update(self, screen_rect, *args):
+        self.rect.y += self.speed
+        if self.rect.top > screen_rect.h:
+            self.reset(screen_rect)
+
+
+class Bonus_Card(pg.sprite.Sprite):
+    def __init__(self, screen_rect, *groups):
+        """
+        The pos argument is a tuple for the center of the player (x,y);
+        speed is given in pixels/frame.
+        """
+        super(Bonus_Card, self).__init__(*groups)
+        self.image = IMAGES["bonus_card"]
+        self.rect = self.image.get_rect()
+        self.reset(screen_rect)
+
+    def reset(self, screen_rect):
+        self.speed = random.randrange(4, 7)
         self.rect.y = random.randrange(-300, -self.rect.h)
         self.rect.x = random.randrange(0, screen_rect.w - self.rect.w)
 
@@ -107,8 +150,13 @@ class Application(object):
         self.allsprites = pg.sprite.Group()
         self.object_sprites = pg.sprite.Group()
         self.player = Player(self.screen_rect.center, 5, self.allsprites)
+        self.score_text = None
         for _ in range(15):
             Money(self.screen_rect, self.allsprites, self.object_sprites)
+        for _ in range(1):
+            Bonus_Card(self.screen_rect, self.allsprites, self.object_sprites)
+        for _ in range(1):
+            Saw(self.screen_rect, self.allsprites, self.object_sprites)
 
     def event_loop(self):
         """
@@ -127,20 +175,20 @@ class Application(object):
         """
         self.screen.fill(pg.Color("white"))
         self.allsprites.draw(self.screen)
+        self.screen.blit(self.score_text, (5, 5))
         pg.display.update()
 
     def update(self):
-        hit_list = pg.sprite.spritecollide(self.player, self.object_sprites, False)
-        for i in hit_list:
-            i.reset(self.screen_rect)
+        hits = pg.sprite.spritecollide(self.player, self.object_sprites, False)
+        for hit in hits:
+            hit.reset(self.screen_rect)
             self.player.score += 1
-            print(self.player.score)
+        self.update_score()
         self.allsprites.update(self.screen_rect, self.keys)
 
     def update_score(self):
-        font = pg.font.SysFont('Calibri', 25, True, False)
-        text = font.render("Score: "+ str(self.player.score), True, pg.Color("black"))
-        self.screen.blit(text, [5, 5])
+        score_raw = "Score: {}".format(self.player.score)
+        self.score_text = FONT.render(score_raw, True, pg.Color("black"))
 
     def main_loop(self):
         """
@@ -150,19 +198,19 @@ class Application(object):
             self.event_loop()
             self.update()
             self.render()
-            self.update_score()
             self.clock.tick(self.fps)
 
 def main():
     """
     Prepare our environment, create a display, and start the program.
     """
-    global IMAGES
+    global IMAGES, FONT
     os.environ['SDL_VIDEO_CENTERED'] = '1'
     pg.init()
     pg.display.set_caption(CAPTION)
-    pg.display.set_mode(SCREEN_SIZE, pg.NOFRAME)
+    pg.display.set_mode(SCREEN_SIZE)
     IMAGES = load_images()
+    FONT = pg.font.SysFont('Calibri', 25, True, False)
     Application().main_loop()
     pg.quit()
     sys.exit()
