@@ -16,10 +16,10 @@ SCREEN_SIZE = (800, 550)
 TRANSPARENT = (0, 0, 0, 0)
 
 # This global constant serves as a very useful convenience for me.
-DIRECT_DICT = {pg.K_LEFT  : (-1, 0),
-               pg.K_RIGHT : ( 1, 0),
-               pg.K_UP    : ( 0,-1),
-               pg.K_DOWN  : ( 0, 1)}
+DIRECT_DICT = {pg.K_LEFT  : (-2, 0),
+               pg.K_RIGHT : ( 2, 0),
+               pg.K_UP    : ( 0,-2),
+               pg.K_DOWN  : ( 0, 2)}
 
 
 def load_images():
@@ -148,15 +148,17 @@ class Application(object):
         self.done = False
         self.keys = pg.key.get_pressed()
         self.allsprites = pg.sprite.Group()
-        self.object_sprites = pg.sprite.Group()
+        self.card_sprite = pg.sprite.Group()
+        self.money_sprite = pg.sprite.Group()
+        self.saw_sprite = pg.sprite.Group()
         self.player = Player(self.screen_rect.center, 5, self.allsprites)
         self.score_text = None
         for _ in range(15):
-            Money(self.screen_rect, self.allsprites, self.object_sprites)
+            Money(self.screen_rect, self.allsprites, self.money_sprite)
         for _ in range(1):
-            Bonus_Card(self.screen_rect, self.allsprites, self.object_sprites)
+            Bonus_Card(self.screen_rect, self.allsprites, self.card_sprite)
         for _ in range(1):
-            Saw(self.screen_rect, self.allsprites, self.object_sprites)
+            Saw(self.screen_rect, self.allsprites, self.saw_sprite)
 
     def event_loop(self):
         """
@@ -179,10 +181,18 @@ class Application(object):
         pg.display.update()
 
     def update(self):
-        hits = pg.sprite.spritecollide(self.player, self.object_sprites, False)
-        for hit in hits:
+        saw_hits = pg.sprite.spritecollide(self.player, self.saw_sprite, False)
+        money_hits = pg.sprite.spritecollide(self.player, self.money_sprite, False)
+        card_hits = pg.sprite.spritecollide(self.player, self.card_sprite, False)
+        for hit in saw_hits:
+            hit.reset(self.screen_rect)
+            self.player.score -= 1
+        for hit in money_hits:
             hit.reset(self.screen_rect)
             self.player.score += 1
+        for hit in card_hits:
+            hit.reset(self.screen_rect)
+            self.player.score += 100
         self.update_score()
         self.allsprites.update(self.screen_rect, self.keys)
 
