@@ -130,8 +130,9 @@ class Application(object):
         pg.display.update()
 
     def update(self):
-        hit_list = pg.sprite.spritecollide(self.player, self.object_sprites, True)
+        hit_list = pg.sprite.spritecollide(self.player, self.object_sprites, False)
         for i in hit_list:
+            i.reset(self.screen_rect)
             self.player.score += 1
             print(self.player.score)
         self.allsprites.update(self.screen_rect, self.keys)
