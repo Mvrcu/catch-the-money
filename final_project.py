@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# final_project.py
+# Main.py
 
 import os
 import sys
@@ -146,6 +146,7 @@ class Application(object):
         self.clock = pg.time.Clock()
         self.fps = 60
         self.done = False
+        self.session_number = 0
         self.keys = pg.key.get_pressed()
         self.allsprites = pg.sprite.Group()
         self.card_sprite = pg.sprite.Group()
@@ -184,13 +185,28 @@ class Application(object):
                 print (h_axis_pos, v_axis_pos)
                 self.rect.x = int(x + h_axis_pos * 5)
                 self.rect.y = int(y + v_axis_pos * 5)
+            if self.keys[pg.K_SPACE]:
+                print('User let go of the space bar key')
+                if not self.done:
+                    self.session_number += 1
+                    self.done = False
+                    print("Not done!")
+            elif self.keys[pg.K_l]:
+                print('Lose Game!')
+                self.done = False
     def render(self):
         """
         Perform all necessary drawing and update the screen.
         """
         self.screen.fill(pg.Color(51, 153, 255))
-        self.allsprites.draw(self.screen)
-        self.screen.blit(self.score_text, (5, 5))
+        if not self.done and self.session_number >= 1:
+            if self.session_number >= 1:
+                self.allsprites.draw(self.screen)
+                self.screen.blit(self.score_text, (5, 5))
+        else:
+            self.title_screen()
+        if self.player.score <= 50:
+            print("quit")
         pg.display.update()
 
     def update(self):
@@ -208,6 +224,38 @@ class Application(object):
             self.player.score += 3
         self.update_score()
         self.allsprites.update(self.screen_rect, self.keys)
+
+    def game_over_screen(self):
+        game_over = pg.font.SysFont('serif', 25)
+        click_enter = pg.font.SysFont('serif', 15)
+        main_text = game_over.render('Game Over', True, pg.Color("black"))
+        sub_text = \
+            click_enter.render('(Click the space bar to play again)',
+                               True, BLACK)
+        center_x = SCREEN_SIZE[0] // 2 - main_text.get_width() // 2
+        center_y = SCREEN_SIZE[1] // 2 - main_text.get_height() // 2
+        screen.blit(main_text, [center_x, center_y])
+        center_x = SCREEN_SIZE[0] // 2 - sub_text.get_width() // 2
+        center_y = SCREEN_SIZE[1] // 2 - (sub_text.get_height() // 2
+                                          - 20)
+        self.screen.blit(sub_text, [center_x, center_y])
+
+    def title_screen(self):
+
+        # First drawn screen the user is prompted by
+
+        new_begin = pg.font.SysFont('serif', 35)
+        new_begin_sub = pg.font.SysFont('serif', 15)
+        begin_text = new_begin.render('Press the space bar to play',
+                                      True, pg.Color("black"))
+        begin_text_sub = new_begin_sub.render('(Use arrow keys or controller to interact)',
+                                              True, pg.Color("black"))
+        center_x = SCREEN_SIZE[0] // 2 - begin_text.get_width() // 2
+        center_y = SCREEN_SIZE[1] // 2 - begin_text.get_height() // 2
+        center_x_sub = SCREEN_SIZE[0] // 2 - begin_text_sub.get_width() // 2
+        center_y_sub = SCREEN_SIZE[1] // 2 - begin_text_sub.get_height() // 2 + 35
+        self.screen.blit(begin_text, [center_x, center_y])
+        self.screen.blit(begin_text_sub, [center_x_sub, center_y_sub])
 
     def update_score(self):
         score_raw = "Score: {}".format(self.player.score)
