@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Main.py
+# final_project.py
 
 import os
 import sys
