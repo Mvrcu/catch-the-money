@@ -205,8 +205,9 @@ class Application(object):
                 self.screen.blit(self.score_text, (5, 5))
         else:
             self.title_screen()
-        if self.player.score <= 50:
-            print("quit")
+        if self.player.score <= -10 and self.session_number == 0:
+            self.game_over_screen()
+            print(self.session_number)
         pg.display.update()
 
     def update(self):
